@@ -1,9 +1,6 @@
-import json
 import requests
 from datetime import datetime
-from flask import request
 from bs4 import BeautifulSoup
-from summercontest import app
 
 BEGIN_JUNE = datetime.strptime('Jun 1 2018', '%b %d %Y')
 END_AUGUST = datetime.strptime('Aug 31 2018', '%b %d %Y')
@@ -51,15 +48,6 @@ def getCodeforcesScore(handle):
 
 def getScores(acmpId, timusId, cfHandle):
     return {'acmp': getAcmpScore(acmpId), 'timus': getTimusScore(timusId), 'cf': getCodeforcesScore(cfHandle)}
-
-@app.route("/scores")
-def scoreApi():
-    acmpId = request.args.get('acmp')
-    timusId = request.args.get('timus')
-    cfHandle = request.args.get('cf')
-    if not acmpId or not timusId or not cfHandle:
-        return 'Not enough arguments'
-    return json.dumps(getScores(acmpId, timusId, cfHandle))
 
 if __name__ == '__main__':
     print(getScores("186318", "214280", "Acuion"))
