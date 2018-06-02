@@ -21,14 +21,12 @@ def getTimusSolved(idStr):
     acs = acs.text.split(' ')[0]
     return int(acs)
 
-def procContestPages(contest, handle):
+def procContestPages(contest, groups):
     offContestStandings = requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=off'.format(contest))
     div1Round = 'rated-user user-red' in offContestStandings
 
     contestPagesGetter = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=on'.format(contest)).text, 'html.parser')
     pagesCount = len(contestPagesGetter.select('.custom-links-pagination')[0].select('span'))
-
-    div1, div23 = 0, 0
 
     for page in range(1, pagesCount + 1):
         print('page', page, 'from', pagesCount)
@@ -46,16 +44,19 @@ def procContestPages(contest, handle):
             for td in tds:
                 if 'acceptedsubmissionid' in td.attrs:
                     solved += 1
-            if handle == userName:
-                if div1Round:
-                    div1 += solved
-                else:
-                    div23 += solved
-                return div1, div23
-    return 0, 0
+            for participant in groups:
+                if participant['cf'] == userName:
+                    print('found cf', participant['cf'])
+                    if div1Round:
+                        participant['cfdiv1'] += solved
+                    else:
+                        participant['cfdiv23'] += solved
 
-def getCodeforcesSolved(handle):
-    # yep, it is inefficient to load the pages every time
+def getCodeforcesSolved(groups):
+    for participant in groups:
+        participant['cfdiv1'] = 0
+        participant['cfdiv23'] = 0
+
     recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests').text, 'html.parser').select('.datatable')[1].select('table')[0]
     matchingContests = []
     for tr in recentContestsList.select('tr'):
@@ -66,19 +67,14 @@ def getCodeforcesSolved(handle):
         if BEGIN_JUNE <= cdate <= END_AUGUST:
             matchingContests.append(cid)
 
-    div1, div23 = 0, 0
-
     for contest in matchingContests:
         print('contest', contest)
-        cdiv1, cdiv23 = procContestPages(contest, handle)
-        div1 += cdiv1
-        div23 += cdiv23
+        procContestPages(contest, groups)
 
-    return div1, div23
-
-def getSolved(acmpId, timusId, cfHandle):
-    div1, div23 = getCodeforcesSolved(cfHandle)
-    return {'acmp': getAcmpSolved(acmpId), 'timus': getTimusSolved(timusId), 'cfdiv1': div1, 'cfdiv23': div23}
-
-if __name__ == '__main__':
-    print(getSolved("222131", "249543", "pholen"))
+def getSolved(groups):
+    getCodeforcesSolved(groups)
+    for participant in groups:
+        print('small sites for', participant['cf'])
+        participant['acmp'] = getAcmpSolved(participant['acmp'])
+        participant['timus'] = getTimusSolved(participant['timus'])
+    return groups
