@@ -15,7 +15,8 @@ function appendToTable(element, rank) {
         <td>${element.sum}</td>
         <td>${element.data['acmp']}</td>
         <td>${element.data['timus']}</td>
-        <td>${element.data['cf']}</td>
+        <td>${element.data['cfDiv1']}</td>
+        <td>${element.data['cfDiv23']}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
@@ -26,8 +27,8 @@ function loadGroup(index) {
         let table = []
         let ps = Promise.resolve();
         data.forEach(element => {
-            ps = ps.then(() => $.getJSON(`/scoresCached?acmp=${element[0]}&timus=${element[1]}&cf=${element[2]}`, function( data ) {
-                let newElement = {name: element[2], data: data, sum: data['acmp'] + data['timus'] + data['cf']};
+            ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element[0]}&timus=${element[1]}&cf=${element[2]}`, function( data ) {
+                let newElement = {name: element[2], data: data, sum: data['acmp'] + data['timus'] * 2 + data['cfDiv1'] * 10 + data['cfDiv23'] * 5};
                 table.push(newElement);
                 appendToTable(newElement, '');
             }));
