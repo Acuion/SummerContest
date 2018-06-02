@@ -31,7 +31,7 @@ function loadGroups() {
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {
-                let newElement = {name: element['fio'], data: {acmp: 0, timus: 0, cfdiv1: 0, cfdiv23: 0}, div: 'Ошибка', sum: 0};
+                let newElement = {name: element['fio'] + ' (ERR)', data: {acmp: -1, timus: -1, cfdiv1: -1, cfdiv23: -1}, div: 'Err', sum: 0};
                 table.push(newElement);
                 appendToTable(newElement, '');
             });
