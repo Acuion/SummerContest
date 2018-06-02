@@ -14,24 +14,24 @@ function appendToTable(element, rank) {
         <td>${element.sum}</td>
         <td>${element.data['acmp']}</td>
         <td>${element.data['timus']}</td>
-        <td>${element.data['cfDiv1']}</td>
-        <td>${element.data['cfDiv23']}</td>
+        <td>${element.data['cfdiv1']}</td>
+        <td>${element.data['cfdiv23']}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
 function loadGroups() {
     $('#toappend').empty();
-    appendToTable({name: 'Загрузка', sum: 0, data: {acmp: 0, timus: 0, cfDiv1: 0, cfDiv23: 0}, div: '─=≡Σ((( つ◉◡◔)つ'}, '<img src="static/Gear-1s-42px.svg"></img>');
+    appendToTable({name: 'Загрузка', sum: 0, data: {acmp: 0, timus: 0, cfdiv1: 0, cfdiv23: 0}, div: '─=≡Σ((( つ◉◡◔)つ'}, '<img src="static/Gear-1s-42px.svg"></img>');
     $.getJSON("/groups", function( data ) {
         let table = []
         let ps = Promise.resolve();
         data.forEach(element => {
             ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element['acmp']}&timus=${element['timus']}&cf=${element['cf']}`, function( data ) {
-                let newElement = {name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfDiv1'] * 10 + data['cfDiv23'] * 5};
+                let newElement = {name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfdiv1'] * 10 + data['cfdiv23'] * 5};
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {
-                let newElement = {name: element['fio'], data: {acmp: 0, timus: 0, cfDiv1: 0, cfDiv23: 0}, div: 'Ошибка', sum: 0};
+                let newElement = {name: element['fio'], data: {acmp: 0, timus: 0, cfdiv1: 0, cfdiv23: 0}, div: 'Ошибка', sum: 0};
                 table.push(newElement);
                 appendToTable(newElement, '');
             });

@@ -78,7 +78,7 @@ def getCodeforcesSolved(handle):
 
 def getSolved(acmpId, timusId, cfHandle):
     div1, div23 = getCodeforcesSolved(cfHandle)
-    return {'acmp': getAcmpSolved(acmpId), 'timus': getTimusSolved(timusId), 'cfDiv1': div1, 'cfDiv23': div23}
+    return {'acmp': getAcmpSolved(acmpId), 'timus': getTimusSolved(timusId), 'cfdiv1': div1, 'cfdiv23': div23}
 
 if __name__ == '__main__':
     print(getSolved("222131", "249543", "pholen"))

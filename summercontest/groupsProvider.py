@@ -9,5 +9,5 @@ def groupApi():
         groups = []
         for line in rawGroups:
             cid,f,i,o,div,cf,timus,acmp = line.split()
-            groups.append({'id': cid, 'fio': '{} {} {}'.format(f,i,o), 'div': div, 'cf': cf, 'timus': timus, 'acmp': acmp})
+            groups.append({'id': cid, 'fio': '{} {}'.format(i,f), 'div': div, 'cf': cf, 'timus': timus, 'acmp': acmp})
         return json.dumps(groups)
