@@ -8,9 +8,9 @@ $( document ).ready(function() {
 function appendToTable(element, rank) {
     console.log(element);
     $(`
-    <tr>
+    <tr class="div${element.div}">
         <th scope="row">${rank}</th>
-        <td>${element.name} (${element.div})</td>
+        <td>${element.name}</td>
         <td>${element.sum}</td>
         <td>${element.data['acmp']}</td>
         <td>${element.data['timus']}</td>
@@ -21,7 +21,7 @@ function appendToTable(element, rank) {
 
 function loadGroups() {
     $('#toappend').empty();
-    appendToTable({name: 'Загрузка', sum: 0, data: {acmp: 0, timus: 0, cfdiv1: 0, cfdiv23: 0}, div: '─=≡Σ((( つ◉◡◔)つ'}, '<img src="static/Gear-1s-42px.svg"></img>');
+    appendToTable({name: 'Загрузка ─=≡Σ((( つ◉◡◔)つ', sum: 0, data: {acmp: 0, timus: 0, cfdiv1: 0, cfdiv23: 0}, div: ''}, '<img src="static/Gear-1s-42px.svg"></img>');
     $.getJSON("/groups", function( data ) {
         let table = []
         let ps = Promise.resolve();
