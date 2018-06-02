@@ -79,4 +79,4 @@ def getSolved(acmpId, timusId, cfHandle):
     return {'acmp': getAcmpSolved(acmpId), 'timus': getTimusSolved(timusId), 'cfDiv1': div1, 'cfDiv23': div23}
 
 if __name__ == '__main__':
-    print(getSolved("186318", "214280", "Acuion"))
+    print(getSolved("195996", "233543", "zile"))

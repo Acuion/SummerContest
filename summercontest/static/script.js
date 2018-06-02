@@ -1,17 +1,16 @@
 'use strict';
 
 $( document ).ready(function() {
-    $('#old').click(() => loadGroup(1));
-    $('#new').click(() => loadGroup(2));
-    $('#school').click(() => loadGroup(3));
     $('#github').click(() => window.location.href = 'https://github.com/Acuion/SummerContest');
+    loadGroups();
 });
 
 function appendToTable(element, rank) {
+    console.log(element);
     $(`
     <tr>
         <th scope="row">${rank}</th>
-        <td>${element.name}</td>
+        <td>${element.name} (${element.div})</td>
         <td>${element.sum}</td>
         <td>${element.data['acmp']}</td>
         <td>${element.data['timus']}</td>
@@ -20,15 +19,15 @@ function appendToTable(element, rank) {
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
-function loadGroup(index) {
+function loadGroups() {
     $('#toappend').empty();
-    appendToTable({name: 'Таблица загружается', sum: 0, data: {acmp: 0, timus: 0, cf: 0}}, '<img src="static/Gear-1s-42px.svg"></img>');
-    $.getJSON("/group?id=" + index, function( data ) {
+    appendToTable({name: 'Загрузка', sum: 0, data: {acmp: 0, timus: 0, cfDiv1: 0, cfDiv23: 0}, div: '─=≡Σ((( つ◉◡◔)つ'}, '<img src="static/Gear-1s-42px.svg"></img>');
+    $.getJSON("/groups", function( data ) {
         let table = []
         let ps = Promise.resolve();
         data.forEach(element => {
-            ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element[0]}&timus=${element[1]}&cf=${element[2]}`, function( data ) {
-                let newElement = {name: element[2], data: data, sum: data['acmp'] + data['timus'] * 2 + data['cfDiv1'] * 10 + data['cfDiv23'] * 5};
+            ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element['acmp']}&timus=${element['timus']}&cf=${element['cf']}`, function( data ) {
+                let newElement = {name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfDiv1'] * 10 + data['cfDiv23'] * 5};
                 table.push(newElement);
                 appendToTable(newElement, '');
             }));
