@@ -12,10 +12,10 @@ function appendToTable(element, rank) {
         <th scope="row">${rank}</th>
         <td>${element.name}</td>
         <td>${element.sum}</td>
-        <td>${element.data['acmp']}</td>
-        <td>${element.data['timus']}</td>
-        <td>${element.data['cfdiv1']}</td>
-        <td>${element.data['cfdiv23']}</td>
+        <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
+        <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
+        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv1']}</a></td>
+        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv23']}</a></td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
@@ -29,7 +29,8 @@ function loadGroups() {
         let ps = Promise.resolve();
         data.forEach(element => {
             ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element['acmp']}&timus=${element['timus']}&cf=${element['cf']}`, function( data ) {
-                let newElement = {name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfdiv1'] * 10 + data['cfdiv23'] * 5};
+                let newElement = {acmpid: element['acmp'], timusid: element['timus'], cfhandle: element['cf'],
+                    element, name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfdiv1'] * 10 + data['cfdiv23'] * 5};
                 totalacmp += data['acmp'];
                 totaltimus += data['timus'];
                 totalcfdiv1 += data['cfdiv1'];
