@@ -2,8 +2,10 @@ from postgres import Postgres
 from summercontest import privatedata
 from flask import Flask
 
+PGI = Postgres(privatedata.pgconnectionstring)
+
 def pgInstance():
-    return Postgres(privatedata.pgconnectionstring)
+    return PGI
 
 app = Flask(__name__)
 
