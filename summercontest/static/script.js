@@ -30,7 +30,11 @@ function loadGroups() {
                 let newElement = {name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfDiv1'] * 10 + data['cfDiv23'] * 5};
                 table.push(newElement);
                 appendToTable(newElement, '');
-            }));
+            })).catch(() => {
+                let newElement = {name: element['fio'], data: {acmp: 0, timus: 0, cfDiv1: 0, cfDiv23: 0}, div: 'Ошибка', sum: 0};
+                table.push(newElement);
+                appendToTable(newElement, '');
+            });
         });
         ps.then(() => {
             table.sort(function(a, b) { return b.sum - a.sum; });

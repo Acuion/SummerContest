@@ -14,6 +14,8 @@ def getAcmpSolved(idStr):
 
 def getTimusSolved(idStr):
     prof = requests.get('http://acm.timus.ru/author.aspx?id=' + idStr)
+    if 'No problems solved' in prof.text:
+        return 0
     soup = BeautifulSoup(prof.text, 'html.parser')
     acs = soup.select('.author_stats_value')[1]
     acs = acs.text.split(' ')[0]
@@ -79,4 +81,4 @@ def getSolved(acmpId, timusId, cfHandle):
     return {'acmp': getAcmpSolved(acmpId), 'timus': getTimusSolved(timusId), 'cfDiv1': div1, 'cfDiv23': div23}
 
 if __name__ == '__main__':
-    print(getSolved("195996", "233543", "zile"))
+    print(getSolved("222131", "249543", "pholen"))
