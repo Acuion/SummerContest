@@ -37,7 +37,7 @@ def procContestPages(contest, groups):
                 continue
             tds = tr.select('td')
             userInfo = tds[1]
-            if 'Virtual participant' in userInfo.text:
+            if 'Virtual participant' in userInfo.text or tds[0].text.isspace():
                 continue
             userName = userInfo.select('a')[0].text
             solved = 0
