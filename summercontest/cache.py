@@ -26,7 +26,7 @@ def buildCache():
         if curr:
             # exists
             lastchange = curr['lastchange']
-            if curr['acmp'] != participant['acmp'] or curr['timus'] != participant['timus'] or curr['cfdiv1'] != participant['cfdiv1'] or curr['cfdiv23'] != participant['cfdiv23']:
+            if curr['acmp'] < participant['acmp'] or curr['timus'] < participant['timus'] or curr['cfdiv1'] < participant['cfdiv1'] or curr['cfdiv23'] < participant['cfdiv23']:
                 lastchange = int(time.time())
                 print('changed', lastchange)
             pgInstance().run("UPDATE suco SET acmp=%(acmp)s, timus=%(timus)s, cfdiv1=%(cfdiv1)s, cfdiv23=%(cfdiv23)s, lastchange=%(lastchange)s WHERE handle=%(handle)s",
