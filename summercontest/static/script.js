@@ -3,6 +3,7 @@
 $( document ).ready(function() {
     $('#github').click(() => window.location.href = 'https://github.com/Acuion/SummerContest');
     loadGroups();
+    setInterval(loadGroups, 7 * 60 * 1000);
 });
 
 function appendToTable(element, rank) {
