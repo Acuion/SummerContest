@@ -11,7 +11,7 @@ function appendToTable(element, rank) {
     $(`
     <tr class="div${element.div}">
         <th scope="row">${rank}</th>
-        <td>${element.name}</td>
+        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${element.sum - element.lastsum}/сутки)`}</td>
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
@@ -25,7 +25,7 @@ function loadGroups() {
     let totalacmp = 0, totaltimus = 0, totalcfdiv1 = 0, totalcfdiv23 = 0;
 
     $('#toappend').empty();
-    appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', cfdiv1: '', cfdiv23: ''}, div: '', notsolving: ''}, '<img src="static/Gear-1s-42px.svg"></img>');
+    appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', cfdiv1: '', cfdiv23: ''}, div: '', notsolving: '', lastsum: -1}, '<img src="static/Gear-1s-42px.svg"></img>');
     $.getJSON("/groups", function( data ) {
         let table = []
         let ps = Promise.resolve();
@@ -33,7 +33,8 @@ function loadGroups() {
             ps = ps.then(() => $.getJSON(`/solvedCached?acmp=${element['acmp']}&timus=${element['timus']}&cf=${element['cf']}`, function( data ) {
                 let newElement = {acmpid: element['acmp'], timusid: element['timus'], cfhandle: element['cf'],
                     name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfdiv1'] * 10 + data['cfdiv23'] * 5,
-                    notsolving: data['lastchange'] == -1 ? '?' : Math.round((Date.now() / 1000 - data['lastchange']) / 60)};
+                    notsolving: data['lastchange'] == -1 ? '?' : Math.round((Date.now() / 1000 - data['lastchange']) / 60),
+                    lastsum: data['lastscore']};
                 totalacmp += data['acmp'];
                 totaltimus += data['timus'];
                 totalcfdiv1 += data['cfdiv1'];
@@ -45,7 +46,7 @@ function loadGroups() {
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {
-                let newElement = {name: element['fio'] + ' (ERR)', data: {acmp: -1, timus: -1, cfdiv1: -1, cfdiv23: -1}, div: 'Err', sum: -1};
+                let newElement = {name: element['fio'] + ' (ERR)', data: {acmp: -1, timus: -1, cfdiv1: -1, cfdiv23: -1}, div: 'Err', sum: -1, lastsum: -1};
                 table.push(newElement);
                 appendToTable(newElement, '');
             });

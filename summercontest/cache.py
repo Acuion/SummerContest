@@ -14,6 +14,9 @@ def scoreApi():
     if not acmpId or not timusId or not cfHandle:
         return 'Not enough arguments'
     cachedScores = pgInstance().one('SELECT * FROM suco WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
+    if cachedScores:
+        lastScore = pgInstance().one('SELECT score FROM increase WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
+        cachedScores['lastscore'] = lastScore if lastScore is not None else -1
     return json.dumps(cachedScores)
 
 def buildCache():
