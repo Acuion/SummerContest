@@ -13,7 +13,7 @@ function appendToTable(element, rank) {
     let increase = element.sum - element.lastsum;
     largestIncrease = Math.max(largestIncrease, increase); // calling 2 times
     var goodBoiOrGrl = "";
-    if (largestIncrease == increase && rank != '' /*first pass*/) {
+    if (largestIncrease > 0 && largestIncrease == increase && rank != '' /*first pass*/) {
         goodBoiOrGrl = ` <img src="static/rocket.png">`;
     }
     let notsolvingStr = '';
