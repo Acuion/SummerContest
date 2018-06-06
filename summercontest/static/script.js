@@ -16,16 +16,25 @@ function appendToTable(element, rank) {
     if (largestIncrease == increase && rank != '' /*first pass*/) {
         goodBoiOrGrl = ` <img src="static/rocket.png">`;
     }
+    let notsolvingStr = '';
+    if (element.notsolving != '') {
+        var tmpns = element.notsolving;
+        if (tmpns >= 60) {
+            notsolvingStr += Math.floor(tmpns / 60) + ' ч ';
+            tmpns %= 60;
+        }
+        notsolvingStr += tmpns + ' мин';
+    }
     $(`
     <tr class="div${element.div}">
         <th scope="row">${rank}</th>
-        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${increase}/сутки${goodBoiOrGrl})`}</td>
+        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${increase}${goodBoiOrGrl})`}</td>
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
         <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv1']}</a></td>
         <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv23']}</a></td>
-        <td>${element.notsolving} ${element.notsolving != '' ? 'мин' : ''}</td>
+        <td>${notsolvingStr}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
