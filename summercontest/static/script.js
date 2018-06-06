@@ -6,12 +6,20 @@ $( document ).ready(function() {
     setInterval(loadGroups, 7 * 60 * 1000);
 });
 
+var largestIncrease = 0;
+
 function appendToTable(element, rank) {
     console.log(element);
+    let increase = element.sum - element.lastsum;
+    largestIncrease = Math.max(largestIncrease, increase); // calling 2 times
+    var goodBoiOrGrl = "";
+    if (largestIncrease == increase && rank != '' /*first pass*/) {
+        goodBoiOrGrl = ` <img src="static/rocket.png">`;
+    }
     $(`
     <tr class="div${element.div}">
         <th scope="row">${rank}</th>
-        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${element.sum - element.lastsum}/сутки)`}</td>
+        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${increase}/сутки${goodBoiOrGrl})`}</td>
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
@@ -22,6 +30,7 @@ function appendToTable(element, rank) {
 }
 
 function loadGroups() {
+    largestIncrease = 0;
     let totalacmp = 0, totaltimus = 0, totalcfdiv1 = 0, totalcfdiv23 = 0;
 
     $('#toappend').empty();
