@@ -15,8 +15,8 @@ def scoreApi():
         return 'Not enough arguments'
     cachedScores = pgInstance().one('SELECT * FROM suco WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
     if cachedScores:
-        lastScore = pgInstance().one('SELECT score FROM increase WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
-        cachedScores['lastscore'] = lastScore if lastScore is not None else -1
+        lastScore = pgInstance().one('SELECT * FROM daily WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
+        cachedScores['incInfo'] = lastScore if lastScore is not None else -1
     return json.dumps(cachedScores)
 
 def buildCache():

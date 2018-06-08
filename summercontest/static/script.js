@@ -10,14 +10,16 @@ var largestIncrease = 0;
 
 function appendToTable(element, rank) {
     console.log(element);
-    let increase = element.sum - element.lastsum;
+    let increase = 0;
+    if (element.incinfo != -1)
+        increase = element.sum - element.incinfo['acmp'] - element.incinfo['timus'] * 2 - element.incinfo['cfdiv1'] * 10 - element.incinfo['cfdiv23'] * 5;
     largestIncrease = Math.max(largestIncrease, increase); // calling 2 times
     var goodBoiOrGrl = "";
     if (largestIncrease > 0 && largestIncrease == increase && rank != '' /*first pass*/) {
         goodBoiOrGrl = ` <img src="static/rocket.png">`;
     }
     let notsolvingStr = '';
-    if (element.notsolving != '') {
+    if (element.notsolving !== '') {
         var tmpns = element.notsolving;
         if (tmpns >= 60) {
             notsolvingStr += Math.floor(tmpns / 60) + ' ч ';
@@ -28,12 +30,13 @@ function appendToTable(element, rank) {
     $(`
     <tr class="div${element.div}">
         <th scope="row">${rank}</th>
-        <td>${element.name} ${element.lastsum == -1 ? '' : `(+${increase}${goodBoiOrGrl})`}</td>
+        <td>${element.name} ${element.incinfo == -1 ? '' : `(+${increase}${goodBoiOrGrl})`}</td>
+        <td>${element.incinfo == -1 ? '0' : element.incinfo['rockets']}</td>
         <td>${element.sum}</td>
-        <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
-        <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
-        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv1']}</a></td>
-        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv23']}</a></td>
+        <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a> ${element.incinfo == -1 ? '' : `(+${element.data['acmp'] - element.incinfo['acmp']})`}</td>
+        <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a> ${element.incinfo == -1 ? '' : `(+${element.data['timus'] - element.incinfo['timus']})`}</td>
+        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv1']}</a> ${element.incinfo == -1 ? '' : `(+${element.data['cfdiv1'] - element.incinfo['cfdiv1']})`}</td>
+        <td><a href="http://codeforces.com/profile/${element.cfhandle}">${element.data['cfdiv23']}</a> ${element.incinfo == -1 ? '' : `(+${element.data['cfdiv23'] - element.incinfo['cfdiv23']})`}</td>
         <td>${notsolvingStr}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
@@ -43,7 +46,7 @@ function loadGroups() {
     let totalacmp = 0, totaltimus = 0, totalcfdiv1 = 0, totalcfdiv23 = 0;
 
     $('#toappend').empty();
-    appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', cfdiv1: '', cfdiv23: ''}, div: '', notsolving: '', lastsum: -1}, '<img src="static/Gear-1s-42px.svg"></img>');
+    appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', cfdiv1: '', cfdiv23: ''}, div: '', notsolving: '', incinfo: -1}, '<img src="static/Gear-1s-42px.svg"></img>');
     $.getJSON("/groups", function( data ) {
         let table = []
         let ps = Promise.resolve();
@@ -52,7 +55,7 @@ function loadGroups() {
                 let newElement = {acmpid: element['acmp'], timusid: element['timus'], cfhandle: element['cf'],
                     name: element['fio'], data: data, div: element['div'], sum: data['acmp'] + data['timus'] * 2 + data['cfdiv1'] * 10 + data['cfdiv23'] * 5,
                     notsolving: data['lastchange'] == -1 ? '?' : Math.round((Date.now() / 1000 - data['lastchange']) / 60),
-                    lastsum: data['lastscore']};
+                    incinfo: data['incInfo']};
                 totalacmp += data['acmp'];
                 totaltimus += data['timus'];
                 totalcfdiv1 += data['cfdiv1'];
@@ -64,7 +67,7 @@ function loadGroups() {
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {
-                let newElement = {name: element['fio'] + ' (ERR)', data: {acmp: -1, timus: -1, cfdiv1: -1, cfdiv23: -1}, div: 'Err', sum: -1, lastsum: -1};
+                let newElement = {name: element['fio'] + ' (ERR)', data: {acmp: -1, timus: -1, cfdiv1: -1, cfdiv23: -1}, div: 'Err', sum: -1, incinfo: -1};
                 table.push(newElement);
                 appendToTable(newElement, '');
             });
