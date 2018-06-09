@@ -7,7 +7,7 @@ for participant in table:
     curr = pgInstance().one('SELECT * FROM daily WHERE handle=%(handle)s', {'handle': participant['handle']}, back_as=dict)
     if curr:
         scoreDiff = participant['acmp'] + participant['timus'] * 2 + participant['cfdiv1'] * 10 + participant['cfdiv23'] * 5
-        - curr['acmp'] + curr['timus'] * 2 + curr['cfdiv1'] * 10 + curr['cfdiv23'] * 5
+        - curr['acmp'] - curr['timus'] * 2 - curr['cfdiv1'] * 10 - curr['cfdiv23'] * 5
         if scoreDiff > highestScore:
             highestScore = scoreDiff
             bestParticipants = []
