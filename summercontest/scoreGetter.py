@@ -33,6 +33,7 @@ def procContestPages(contest, groups):
         print('page', page, 'from', pagesCount)
         contestPage = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings/page/{}?showUnofficial=on'.format(contest, page)).text, 'html.parser')
         contestTable = contestPage.select('.standings')[0]
+        stopFlag = False
         for tr in contestTable.select('tr'):
             if 'participantid' not in tr.attrs:
                 continue
@@ -45,6 +46,9 @@ def procContestPages(contest, groups):
             for td in tds:
                 if 'acceptedsubmissionid' in td.attrs:
                     solved += 1
+            if solved == 0:
+                stopFlag = True
+                break
             for participant in groups:
                 if participant['cf'] == userName:
                     print('found cf', participant['cf'])
@@ -52,13 +56,15 @@ def procContestPages(contest, groups):
                         participant['cfdiv1'] += solved
                     else:
                         participant['cfdiv23'] += solved
+        if stopFlag:
+            break
 
 def getCodeforcesSolved(groups):
     for participant in groups:
         participant['cfdiv1'] = 0
         participant['cfdiv23'] = 0
 
-    recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests').text, 'html.parser').select('.datatable')[1].select('table')[0]
+    recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests?complete=true').text, 'html.parser').select('.datatable')[1].select('table')[0]
     matchingContests = []
     for tr in recentContestsList.select('tr'):
         cid = tr.get('data-contestid')
