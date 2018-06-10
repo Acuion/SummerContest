@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from joblib import Parallel, delayed
 
 BEGIN_JUNE = datetime.strptime('Jun 1 2018', '%b %d %Y')
 END_AUGUST = datetime.strptime('Aug 31 2018', '%b %d %Y')
@@ -78,10 +79,13 @@ def getCodeforcesSolved(groups):
         print('contest', contest)
         procContestPages(contest, groups)
 
+def processSmallSites(participant):
+    print('small sites for', participant['cf'])
+    participant['acmp'] = getAcmpSolved(participant['acmp'])
+    participant['timus'] = getTimusSolved(participant['timus'])
+    return participant
+
 def getSolved(groups):
     getCodeforcesSolved(groups)
-    for participant in groups:
-        print('small sites for', participant['cf'])
-        participant['acmp'] = getAcmpSolved(participant['acmp'])
-        participant['timus'] = getTimusSolved(participant['timus'])
+    groups = Parallel(n_jobs=4)(delayed(processSmallSites)(participant) for participant in groups)
     return groups
