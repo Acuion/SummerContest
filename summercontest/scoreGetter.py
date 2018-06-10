@@ -68,7 +68,7 @@ def getCodeforcesSolved(groups):
     matchingContests = []
     for tr in recentContestsList.select('tr'):
         cid = tr.get('data-contestid')
-        if not cid:
+        if not cid or "Preliminary results" in tr.text:
             continue
         cdate = datetime.strptime(tr.select('.format-date')[0].text, '%b/%d/%Y %M:%S')
         if BEGIN_JUNE <= cdate <= END_AUGUST:
