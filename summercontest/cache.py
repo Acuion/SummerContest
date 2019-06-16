@@ -28,10 +28,10 @@ def buildCache():
             if curr['acmp'] < participant['acmp'] or curr['timus'] < participant['timus']:
                 lastchange = int(time.time())
                 print('changed', lastchange)
-            pgInstance().run("UPDATE suco SET acmp=%(acmp)s, timus=%(timus)s, lastchange=%(lastchange)s WHERE id=%(id)s",
-            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus'], 'lastchange': lastchange})
+            pgInstance().run("UPDATE suco SET acmp=%(acmp)s, timus=%(timus)s, lastchange=%(lastchange)s, power=%(power)s WHERE id=%(id)s",
+            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus'], 'lastchange': lastchange, 'power': participant['power']})
         else:
             # new
-            pgInstance().run("INSERT INTO suco values(%(id)s, %(acmp)s, %(timus)s, -1)",
-            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus']})
+            pgInstance().run("INSERT INTO suco values(%(id)s, %(acmp)s, %(timus)s, -1, %(power)s)",
+            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus'], 'power': participant['power']})
     print('exec time = ', time.time() - startTime, 'sec')

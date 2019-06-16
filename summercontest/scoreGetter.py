@@ -23,6 +23,7 @@ def processSmallSites(participant):
     print('small sites for', participant['id'])
     participant['acmp'] = getAcmpSolved(participant['acmp'])
     participant['timus'] = getTimusSolved(participant['timus'])
+    participant['power'] = 0 # TODO
     return participant
 
 def getSolved(groups):
