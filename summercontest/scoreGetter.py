@@ -1,10 +1,6 @@
 import requests
-from datetime import datetime
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
-
-BEGIN_JUNE = datetime.strptime('Jun 1 2018', '%b %d %Y')
-END_AUGUST = datetime.strptime('Aug 31 2018', '%b %d %Y')
 
 def getAcmpSolved(idStr):
     prof = requests.get('http://acmp.ru/index.asp?main=user&id=' + idStr)
@@ -23,78 +19,12 @@ def getTimusSolved(idStr):
     acs = acs.text.split(' ')[0]
     return int(acs)
 
-def procContestPages(contest, groups):
-    offContestStandings = requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=off&locale=en'.format(contest))
-    if '<a href="/team/' in offContestStandings.text:
-        print('Oh no, round with teams!')
-        return
-    div1Round = 'rated-user user-red' in offContestStandings.text and not 'Educational Codeforces Round' in offContestStandings.text
-    print('div1?', div1Round)
-
-    contestPagesGetter = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=on&locale=en'.format(contest)).text, 'html.parser')
-    try:
-        pagesCount = len(contestPagesGetter.select('.custom-links-pagination')[0].select('span'))
-    except Exception:
-        print('Wow, no pages!')
-        pagesCount = 1
-
-    for page in range(1, pagesCount + 1):
-        print('page', page, 'from', pagesCount)
-        contestPage = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings/page/{}?showUnofficial=on&locale=en'.format(contest, page)).text, 'html.parser')
-        contestTable = contestPage.select('.standings')[0]
-        stopFlag = False
-        for tr in contestTable.select('tr'):
-            if 'participantid' not in tr.attrs:
-                continue
-            tds = tr.select('td')
-            userInfo = tds[1]
-            if 'Virtual participant' in userInfo.decode_contents() or tds[0].text.isspace():
-                continue
-            userName = userInfo.select('a')[0].text
-            solved = 0
-            for td in tds:
-                if 'acceptedsubmissionid' in td.attrs:
-                    solved += 1
-            if tds[2].text.strip() == '0': # 0 points
-                print('stopped at ', userName)
-                stopFlag = True
-                break
-            for participant in groups:
-                if participant['cf'] == userName:
-                    print('found cf', userName, 'solved', solved)
-                    if div1Round:
-                        participant['cfdiv1'] += solved
-                    else:
-                        participant['cfdiv23'] += solved
-        if stopFlag:
-            break
-
-def getCodeforcesSolved(groups):
-    for participant in groups:
-        participant['cfdiv1'] = 0
-        participant['cfdiv23'] = 0
-
-    recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests?complete=true&locale=en').text, 'html.parser').select('.datatable')[1].select('table')[0]
-    matchingContests = []
-    for tr in recentContestsList.select('tr'):
-        cid = tr.get('data-contestid')
-        if not cid or "Preliminary results" in tr.text:
-            continue
-        cdate = datetime.strptime(tr.select('.format-date')[0].text, '%b/%d/%Y %M:%S')
-        if BEGIN_JUNE <= cdate <= END_AUGUST:
-            matchingContests.append(cid)
-
-    for contest in matchingContests:
-        print('contest', contest)
-        procContestPages(contest, groups)
-
 def processSmallSites(participant):
-    print('small sites for', participant['cf'])
+    print('small sites for', participant['id'])
     participant['acmp'] = getAcmpSolved(participant['acmp'])
     participant['timus'] = getTimusSolved(participant['timus'])
     return participant
 
 def getSolved(groups):
-    getCodeforcesSolved(groups)
     groups = Parallel(n_jobs=4)(delayed(processSmallSites)(participant) for participant in groups)
     return groups

@@ -8,15 +8,10 @@ from summercontest import pgInstance
 
 @app.route("/solvedCached")
 def scoreApi():
-    acmpId = request.args.get('acmp')
-    timusId = request.args.get('timus')
-    cfHandle = request.args.get('cf')
-    if not acmpId or not timusId or not cfHandle:
-        return 'Not enough arguments'
-    cachedScores = pgInstance().one('SELECT * FROM suco WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
-    if cachedScores:
-        lastScore = pgInstance().one('SELECT * FROM daily WHERE handle=%(handle)s', {'handle': cfHandle}, back_as=dict)
-        cachedScores['incInfo'] = lastScore if lastScore is not None else -1
+    participantId = request.args.get('id')
+    if not participantId:
+        return 'oops'
+    cachedScores = pgInstance().one('SELECT * FROM suco WHERE id=%(id)s', {'id': participantId}, back_as=dict)
     return json.dumps(cachedScores)
 
 def buildCache():
@@ -25,18 +20,18 @@ def buildCache():
     print('loading data')
     groups = scoreGetter.getSolved(groups)
     for participant in groups:
-        print('caching', participant['cf'])
-        curr = pgInstance().one('SELECT * FROM suco WHERE handle=%(handle)s', {'handle': participant['cf']}, back_as=dict)
+        print('caching', participant['id'])
+        curr = pgInstance().one('SELECT * FROM suco WHERE id=%(id)s', {'id': participant['id']}, back_as=dict)
         if curr:
             # exists
             lastchange = curr['lastchange']
-            if curr['acmp'] < participant['acmp'] or curr['timus'] < participant['timus'] or curr['cfdiv1'] < participant['cfdiv1'] or curr['cfdiv23'] < participant['cfdiv23']:
+            if curr['acmp'] < participant['acmp'] or curr['timus'] < participant['timus']:
                 lastchange = int(time.time())
                 print('changed', lastchange)
-            pgInstance().run("UPDATE suco SET acmp=%(acmp)s, timus=%(timus)s, cfdiv1=%(cfdiv1)s, cfdiv23=%(cfdiv23)s, lastchange=%(lastchange)s WHERE handle=%(handle)s",
-            {'handle': participant['cf'], 'acmp': participant['acmp'], 'cfdiv1': participant['cfdiv1'], 'cfdiv23': participant['cfdiv23'], 'timus': participant['timus'], 'lastchange': lastchange})
+            pgInstance().run("UPDATE suco SET acmp=%(acmp)s, timus=%(timus)s, lastchange=%(lastchange)s WHERE id=%(id)s",
+            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus'], 'lastchange': lastchange})
         else:
             # new
-            pgInstance().run("INSERT INTO suco values(%(handle)s, %(acmp)s, %(timus)s, %(cfdiv1)s, %(cfdiv23)s, -1)",
-            {'handle': participant['cf'], 'acmp': participant['acmp'], 'cfdiv1': participant['cfdiv1'], 'cfdiv23': participant['cfdiv23'], 'timus': participant['timus']})
+            pgInstance().run("INSERT INTO suco values(%(id)s, %(acmp)s, %(timus)s, -1)",
+            {'id': participant['id'], 'acmp': participant['acmp'], 'timus': participant['timus']})
     print('exec time = ', time.time() - startTime, 'sec')

@@ -8,6 +8,6 @@ def groupApi():
         rawGroups = f.readlines()
         groups = []
         for line in rawGroups:
-            cid,f,i,o,div,cf,timus,acmp = line.split()
-            groups.append({'id': cid, 'fio': '{} {}'.format(i,f), 'div': div, 'cf': cf, 'timus': timus, 'acmp': acmp})
+            cid, f, i, o, div, timus, acmp = line.split()
+            groups.append({'id': cid, 'fio': '{} {}'.format(i,f), 'div': div, 'timus': timus, 'acmp': acmp})
         return json.dumps(groups)
