@@ -20,6 +20,7 @@ def scoreApi():
     return json.dumps(cachedScores)
 
 def buildCache():
+    startTime = time.time()
     groups = json.loads(groupsProvider.groupApi())
     print('loading data')
     groups = scoreGetter.getSolved(groups)
@@ -38,3 +39,4 @@ def buildCache():
             # new
             pgInstance().run("INSERT INTO suco values(%(handle)s, %(acmp)s, %(timus)s, %(cfdiv1)s, %(cfdiv23)s, -1)",
             {'handle': participant['cf'], 'acmp': participant['acmp'], 'cfdiv1': participant['cfdiv1'], 'cfdiv23': participant['cfdiv23'], 'timus': participant['timus']})
+    print('exec time = ', time.time() - startTime, 'sec')

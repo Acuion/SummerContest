@@ -24,15 +24,23 @@ def getTimusSolved(idStr):
     return int(acs)
 
 def procContestPages(contest, groups):
-    offContestStandings = requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=off'.format(contest))
-    div1Round = 'rated-user user-red' in offContestStandings
+    offContestStandings = requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=off&locale=en'.format(contest))
+    if '<a href="/team/' in offContestStandings.text:
+        print('Oh no, round with teams!')
+        return
+    div1Round = 'rated-user user-red' in offContestStandings.text and not 'Educational Codeforces Round' in offContestStandings.text
+    print('div1?', div1Round)
 
-    contestPagesGetter = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=on'.format(contest)).text, 'html.parser')
-    pagesCount = len(contestPagesGetter.select('.custom-links-pagination')[0].select('span'))
+    contestPagesGetter = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings?showUnofficial=on&locale=en'.format(contest)).text, 'html.parser')
+    try:
+        pagesCount = len(contestPagesGetter.select('.custom-links-pagination')[0].select('span'))
+    except Exception:
+        print('Wow, no pages!')
+        pagesCount = 1
 
     for page in range(1, pagesCount + 1):
         print('page', page, 'from', pagesCount)
-        contestPage = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings/page/{}?showUnofficial=on'.format(contest, page)).text, 'html.parser')
+        contestPage = BeautifulSoup(requests.get('http://codeforces.com/contest/{}/standings/page/{}?showUnofficial=on&locale=en'.format(contest, page)).text, 'html.parser')
         contestTable = contestPage.select('.standings')[0]
         stopFlag = False
         for tr in contestTable.select('tr'):
@@ -40,19 +48,20 @@ def procContestPages(contest, groups):
                 continue
             tds = tr.select('td')
             userInfo = tds[1]
-            if 'Virtual participant' in userInfo.text or tds[0].text.isspace():
+            if 'Virtual participant' in userInfo.decode_contents() or tds[0].text.isspace():
                 continue
             userName = userInfo.select('a')[0].text
             solved = 0
             for td in tds:
                 if 'acceptedsubmissionid' in td.attrs:
                     solved += 1
-            if solved == 0:
+            if tds[2].text.strip() == '0': # 0 points
+                print('stopped at ', userName)
                 stopFlag = True
                 break
             for participant in groups:
                 if participant['cf'] == userName:
-                    print('found cf', participant['cf'])
+                    print('found cf', userName, 'solved', solved)
                     if div1Round:
                         participant['cfdiv1'] += solved
                     else:
@@ -65,7 +74,7 @@ def getCodeforcesSolved(groups):
         participant['cfdiv1'] = 0
         participant['cfdiv23'] = 0
 
-    recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests?complete=true').text, 'html.parser').select('.datatable')[1].select('table')[0]
+    recentContestsList = BeautifulSoup(requests.get('http://codeforces.com/contests?complete=true&locale=en').text, 'html.parser').select('.datatable')[1].select('table')[0]
     matchingContests = []
     for tr in recentContestsList.select('tr'):
         cid = tr.get('data-contestid')

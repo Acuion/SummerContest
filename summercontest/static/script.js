@@ -13,7 +13,8 @@ function appendToTable(element, rank) {
     let increase = 0;
     if (element.incinfo != -1)
         increase = element.sum - element.incinfo['acmp'] - element.incinfo['timus'] * 2 - element.incinfo['cfdiv1'] * 10 - element.incinfo['cfdiv23'] * 5;
-    largestIncrease = Math.max(largestIncrease, increase); // calling 2 times
+    if (element.div != 'X')
+        largestIncrease = Math.max(largestIncrease, increase); // calling 2 times
     var goodBoiOrGrl = "";
     if (largestIncrease > 0 && largestIncrease == increase && rank != '' /*first pass*/) {
         goodBoiOrGrl = ` <img src="static/rocket.png">`;
