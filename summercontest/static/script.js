@@ -24,13 +24,13 @@ function appendToTable(element, rank) {
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
-        <td>${element.data['power']}</td>
+        <td alt="${element.data['power_hint']}">${element.data['power']}</td>
         <td>${notsolvingStr}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
 
 function loadGroups() {
-    let totalacmp = 0, totaltimus = 0;
+    let totalacmp = 0, totaltimus = 0, powertotal = 0;
 
     $('#toappend').empty();
     appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', power: ''}, div: '', notsolving: ''}, '<img src="static/Gear-1s-42px.svg"></img>');
@@ -45,8 +45,10 @@ function loadGroups() {
                 };
                 totalacmp += data['acmp'];
                 totaltimus += data['timus'];
+                powertotal += data['power'];
                 $('#acmp-total').text(`Acmp решено (${totalacmp})`);
                 $('#timus-total').text(`Timus решено (${totaltimus})`);
+                $('#power-total').text(`Сила духа (${powertotal})`);
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {

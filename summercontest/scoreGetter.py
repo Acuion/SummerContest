@@ -49,7 +49,7 @@ def getTimusSolved(idStr, complexityDict):
     soup = BeautifulSoup(prof.text, 'html.parser')
     statsTdsList = soup.select('.author_stats_value')
     if not statsTdsList:
-        return 0
+        return 0, 0
     acs = statsTdsList[1]
     acs = int(acs.text.split(' ')[0])
     complexity31 = 0
@@ -61,10 +61,11 @@ def getTimusSolved(idStr, complexityDict):
     return acs, complexity31
 
 def processSmallSites(participant, acmpComplexityDict, timusComplexityDict):
-    print('small sites for', participant['id'])
+    print('small sites for', participant['id'], participant['acmp'], participant['timus'])
     participant['acmp'], acmp101sComplexity = getAcmpSolved(participant['acmp'], acmpComplexityDict)
     participant['timus'], timus31sComplexity = getTimusSolved(participant['timus'], timusComplexityDict)
     participant['power'] = acmp101sComplexity * timus31sComplexity
+    participant['power_hint'] = '{} * {}'.format(acmp101sComplexity, timus31sComplexity)
     return participant
 
 def getSolved(groups):
