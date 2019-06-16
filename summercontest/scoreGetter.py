@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from joblib import Parallel, delayed
 
-def acmpComplexityDict():
+def getAcmpComplexityDict():
     pagesSrc = requests.get('http://acmp.ru/index.asp?main=tasks')
     soup = BeautifulSoup(pagesSrc.text, 'html.parser')
     result = {}
@@ -18,7 +18,7 @@ def acmpComplexityDict():
             result[str(int(tds[0].getText()))] = int(tds[4].getText().strip()[:-1])
     return result
 
-def timusComplexityDict():
+def getTimusComplexityDict():
     print('Processing timus page')
     prof = requests.get('http://acm.timus.ru/problemset.aspx?space=1&page=all&skipac=False&sort=difficulty')
     soup = BeautifulSoup(prof.text, 'html.parser')
@@ -31,33 +31,44 @@ def timusComplexityDict():
         result[tds[1].getText()] = int(tds[5].getText())
     return result
 
-def getAcmpSolved(idStr):
+def getAcmpSolved(idStr, complexityDict):
     prof = requests.get('http://acmp.ru/index.asp?main=user&id=' + idStr)
     soup = BeautifulSoup(prof.text, 'html.parser')
     acs = soup.select('.text')[0]
     links = acs.select('a')
     acs = len(links)
-    return acs
+    complexity101 = 0
+    if acs > 100:
+        ids = [link.getText() for link in links]
+        sortedTasks = sorted(ids, key=lambda x: complexityDict[x], reverse=True)
+        complexity101 = complexityDict[sortedTasks[100]]
+    return acs, complexity101
 
-def getTimusSolved(idStr):
+def getTimusSolved(idStr, complexityDict):
     prof = requests.get('http://acm.timus.ru/author.aspx?id=' + idStr)
     soup = BeautifulSoup(prof.text, 'html.parser')
     statsTdsList = soup.select('.author_stats_value')
     if not statsTdsList:
         return 0
     acs = statsTdsList[1]
-    acs = acs.text.split(' ')[0]
-    return int(acs)
+    acs = int(acs.text.split(' ')[0])
+    complexity31 = 0
+    if acs > 30:
+        accsTds = soup.select('.accepted')
+        ids = [td.getText() for td in accsTds]
+        sortedTasks = sorted(ids, key=lambda x: complexityDict[x], reverse=True)
+        complexity31 = complexityDict[sortedTasks[30]]
+    return acs, complexity31
 
-def processSmallSites(participant):
+def processSmallSites(participant, acmpComplexityDict, timusComplexityDict):
     print('small sites for', participant['id'])
-    participant['acmp'], acmp101sComplexity = getAcmpSolved(participant['acmp'])
-    participant['timus'], timus31sComplexity = getTimusSolved(participant['timus'])
+    participant['acmp'], acmp101sComplexity = getAcmpSolved(participant['acmp'], acmpComplexityDict)
+    participant['timus'], timus31sComplexity = getTimusSolved(participant['timus'], timusComplexityDict)
     participant['power'] = acmp101sComplexity * timus31sComplexity
     return participant
 
 def getSolved(groups):
-    groups = Parallel(n_jobs=4)(delayed(processSmallSites)(participant) for participant in groups)
+    acmpComplexityDict = getAcmpComplexityDict()
+    timusComplexityDict = getTimusComplexityDict()
+    groups = Parallel(n_jobs=4)(delayed(processSmallSites)(participant, acmpComplexityDict, timusComplexityDict) for participant in groups)
     return groups
-
-print(acmpComplexityDict())
