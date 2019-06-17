@@ -1,9 +1,16 @@
 'use strict';
 
-$( document ).ready(function() {
+const scoreSortFunc = function(a, b) { return b.sum - a.sum; };
+const powerSortFunc = function(a, b) { return b.data['power'] - a.data['power']; };
+let currentSortFunc = scoreSortFunc;
+
+$(document).ready(function() {
     $('#github').click(() => window.location.href = 'https://github.com/Acuion/SummerContest');
     loadGroups();
     setInterval(loadGroups, 7 * 60 * 1000);
+
+    $('#power-total').click(() => { currentSortFunc = powerSortFunc; loadGroups(); });
+    $('#score').click(() => { currentSortFunc = scoreSortFunc; loadGroups(); });
 });
 
 function appendToTable(element, rank) {
@@ -24,7 +31,7 @@ function appendToTable(element, rank) {
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
-        <td alt="${element.data['power_hint']}">${element.data['power']}</td>
+        <td title="${element.data['power_hint']}">${element.data['power']}</td>
         <td>${notsolvingStr}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
@@ -35,7 +42,7 @@ function loadGroups() {
     $('#toappend').empty();
     appendToTable({name: 'Загрузка<br>─=≡Σ((( つ◉◡◔)つ', sum: '', data: {acmp: '', timus: '', power: ''}, div: '', notsolving: ''}, '<img src="static/Gear-1s-42px.svg"></img>');
     $.getJSON("/groups", function( data ) {
-        let table = []
+        let table = [];
         let ps = Promise.resolve();
         data.forEach(element => {
             ps = ps.then(() => $.getJSON(`/solvedCached?id=${element['id']}`, function( data ) {
@@ -58,7 +65,7 @@ function loadGroups() {
             });
         });
         ps.then(() => {
-            table.sort(function(a, b) { return b.sum - a.sum; });
+            table.sort(currentSortFunc);
             $('#toappend').empty();
             let rank = 1;
             table.forEach(element => appendToTable(element, rank++));
