@@ -1,7 +1,7 @@
 'use strict';
 
 const scoreSortFunc = function(a, b) { return b.sum - a.sum; };
-const powerSortFunc = function(a, b) { return b.data['power'] - a.data['power']; };
+// const powerSortFunc = function(a, b) { return b.data['power'] - a.data['power']; };
 let currentSortFunc = scoreSortFunc;
 
 $(document).ready(function() {
@@ -9,7 +9,7 @@ $(document).ready(function() {
     loadGroups();
     setInterval(loadGroups, 7 * 60 * 1000);
 
-    $('#power-total').click(() => { currentSortFunc = powerSortFunc; loadGroups(); });
+    // $('#power-total').click(() => { currentSortFunc = powerSortFunc; loadGroups(); });
     $('#score').click(() => { currentSortFunc = scoreSortFunc; loadGroups(); });
 });
 
@@ -25,13 +25,14 @@ function appendToTable(element, rank) {
         notsolvingStr += tmpns + ' мин';
     }
     $(`
-    <tr class="div${element.div}">
+    <!-- <tr class="div${element.div}"> -->
+    <tr>
         <th scope="row">${rank}</th>
         <td>${element.name}</td>
         <td>${element.sum}</td>
         <td><a href="http://acmp.ru/index.asp?main=user&id=${element.acmpid}">${element.data['acmp']}</a></td>
         <td><a href="http://acm.timus.ru/author.aspx?id=${element.timusid}">${element.data['timus']}</a></td>
-        <td title="${element.data['power_hint']}">${element.data['power']}</td>
+        <!-- <td title="${element.data['power_hint']}">${element.data['power']}</td> -->
         <td>${notsolvingStr}</td>
     </tr>`).appendTo('#toappend').hide().fadeIn(200);
 }
@@ -55,7 +56,7 @@ function loadGroups() {
                 powertotal += data['power'];
                 $('#acmp-total').text(`Acmp решено (${totalacmp})`);
                 $('#timus-total').text(`Timus решено (${totaltimus})`);
-                $('#power-total').text(`Сила духа (${powertotal})`);
+                // $('#power-total').text(`Сила духа (${powertotal})`);
                 table.push(newElement);
                 appendToTable(newElement, '');
             })).catch(() => {
